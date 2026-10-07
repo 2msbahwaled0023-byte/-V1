@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ستور الفنان لشحن شدات ببجي موبايل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبات Firebase الرسمية (Realtime Database) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --header-bg: #0f131c;
+            --text-color: #ffffff;
+            --card-bg: rgba(21, 26, 38, 0.95);
+            --border-color: rgba(255, 215, 0, 0.3);
+            --ads-bg: linear-gradient(135deg, #1f2430, #151a23);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f4f6f9;
+            --header-bg: #ffffff;
+            --text-color: #1a1a1a;
+            --card-bg: #ffffff;
+            --border-color: rgba(255, 140, 0, 0.3);
+            --ads-bg: linear-gradient(135deg, #fff3cd, #ffeeba);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* 👑 الهيدر العلوي */
+        header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-avatar {
+            width: 85px;
+            height: 85px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2.5px solid #ffd700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-info h1 {
+            font-size: 1.15rem;
+            color: #ffd700;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-info p {
+            font-size: 0.73rem;
+            color: var(--text-color);
+            opacity: 0.85;
+            line-height: 1.25;
+        }
+
+        .header-right-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .login-btn-header {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .theme-btn-header {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 15px auto;
+            padding: 0 15px;
+        }
+
+        /* 📺 شاشة الإعلانات الحركية */
+        .ads-container {
+            background: var(--ads-bg);
+            border: 2px solid #ffd700;
+            border-radius: 14px;
+            padding: 22px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #ffd700;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+            min-height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="light"] .ads-container {
+            color: #856404;
+            border-color: #ff8c00;
+        }
+
+        .anim-style-1 { animation: animZoomBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .anim-style-2 { animation: animSlideRight 0.7s ease-out both; }
+        .anim-style-3 { animation: animRotateFlip 0.75s cubic-bezier(0.4, 0, 0.2, 1) both; }
+        .anim-style-4 { animation: animDropBounce 0.8s cubic-bezier(0.25, 1, 0.5, 1.25) both; }
+        .anim-style-5 { animation: animFadeScale 0.7s ease-in-out both; }
+
+        @keyframes animZoomBounce {
+            0% { opacity: 0; transform: scale(0.3); }
+            60% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes animSlideRight {
+            0% { opacity: 0; transform: translateX(80px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes animRotateFlip {
+            0% { opacity: 0; transform: rotateX(90deg) translateY(-30px); }
+            100% { opacity: 1; transform: rotateX(0deg) translateY(0); }
+        }
+
+        @keyframes animDropBounce {
+            0% { opacity: 0; transform: translateY(-70px); }
+            70% { opacity: 1; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes animFadeScale {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .section-title {
+            text-align: center;
+            color: #ffd700;
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin: 15px 0;
+        }
+
+        /* 🛍️ باقات المتجر */
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (min-width: 600px) { .store-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 900px) { .store-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 180px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .promo-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #e63946;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .custom-promo-tag {
+            background: rgba(37, 211, 102, 0.15);
+            color: #25d366;
+            border: 1px dashed #25d366;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 5px;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .uc-amount {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+
+        .price {
+            font-size: 0.95rem;
+            margin: 8px 0;
+            font-weight: 800;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 8px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .phone-numbers-box {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #ffd700;
+        }
+
+        .social-links-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+
+        .whatsapp-btn { background: #25D366; }
+        .instagram-btn { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .facebook-btn { background: #1877F2; }
+
+        .privacy-box-mini {
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.82rem;
+        }
+
+        .admin-trigger-icon {
+            font-size: 1.3rem;
+            cursor: pointer;
+            margin-bottom: 2px;
+            display: inline-block;
+        }
+
+        /* النوافذ المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            text-align: right;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: var(--text-color);
+        }
+
+        .modal-content label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .pkg-edit-row {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+
+        .users-table th, .users-table td {
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- 👑 الهيدر العلوي -->
+    <header>
+        <div class="header-left-group">
+            <img src="https://cdn-icons-png.flaticon.com/512/808/808439.png" alt="Logo" class="header-avatar" id="siteLogoImg">
+            <div class="header-info">
+                <h1 id="siteHeaderTitle">ستور الفنان 👑</h1>
+                <p>لشحن شدات ببجي موبايل<br>مطور الموقع<br>مصباح الفنان</p>
+            </div>
+        </div>
+        <div class="header-right-group">
+            <button class="login-btn-header" onclick="openProfileOrLogin()" id="userAccountBtn" title="تسجيل الدخول">
+                <i class="fa-solid fa-user"></i> دخول
+            </button>
+            <button class="theme-btn-header" onclick="toggleTheme()" id="themeBtnText" title="تغيير الوضع">
+                <i class="fa-solid fa-sun" id="themeIcon"></i> <span id="themeLabel">نهاري</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- 📺 شاشة الإعلانات الحركية -->
+        <div class="ads-container">
+            <div id="adsSlideBox" class="ad-slide-text anim-style-1">⚡ جاري تحميل أقوى عروض الشدات أونلاين...</div>
+        </div>
+
+        <h2 class="section-title">💎 متجر باقات شدات ببجي موبايل</h2>
+        
+        <!-- 🛍️ باقات الشدات -->
+        <div class="store-grid" id="storeGrid"></div>
+
+        <!-- 📞 أرقام الخدمة -->
+        <div class="phone-numbers-box">
+            📞 خدمة العملاء: 01040428382 | 01105588499
+        </div>
+
+        <!-- 📱 أزرار التواصل الاجتماعي -->
+        <div class="social-links-container">
+            <a href="https://wa.me/201040428382?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%8A%D9%83%20%D9%8A%D8%A7%20%D8%AD%D8%A8%20%E2%9D%A4%EF%B8%8F" target="_blank" class="social-btn whatsapp-btn">
+                <i class="fa-brands fa-whatsapp"></i> واتساب الدعم
+            </a>
+            <a href="https://www.instagram.com/msbhmsbhwlyd?stkn=Z2IyMzhhMmNtM3pt" target="_blank" class="social-btn instagram-btn">
+                <i class="fa-brands fa-instagram"></i> إنستغرام
+            </a>
+            <a href="https://www.facebook.com/share/1F7JG7we1i/" target="_blank" class="social-btn facebook-btn">
+                <i class="fa-brands fa-facebook"></i> فيسبوك
+            </a>
+        </div>
+
+        <!-- ☠️ الخصوصية ولوحة الإدارة -->
+        <div class="privacy-box-mini">
+            <div class="admin-trigger-icon" onclick="openAdminModal()" title="إدارة الموقع">☠️</div>
+            <div>تشفير آمن 100% | الشحن بالمعرف (ID) فقط بدون كلمة سر</div>
+        </div>
+
+    </div>
+
+    <!-- نافذة تسجيل بيانات العميل (بدون صور بروفايل نهائياً) -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h3 id="modalUserTitle">تسجيل بيانات الحساب والـ ID</h3>
+            
+            <label>الاسم الكامل:</label>
+            <input type="text" id="regName" placeholder="مثال: مصباح وليد">
+
+            <label>رقم الهاتف:</label>
+            <input type="tel" id="regPhone" placeholder="مثال: 01040428382">
+
+            <label>المحافظة:</label>
+            <select id="regGov">
+                <option value="الشرقية">الشرقية</option>
+                <option value="القاهرة">القاهرة</option>
+                <option value="الجيزة">الجيزة</option>
+                <option value="الإسكندرية">الإسكندرية</option>
+                <option value="الدقهلية">الدقهلية</option>
+                <option value="أخرى">محافظة أخرى</option>
+            </select>
+
+            <label>رقم الـ ID في ببجي:</label>
+            <input type="text" id="regPubgID" placeholder="مثال: 1542751371">
+            
+            <button class="buy-btn" onclick="saveUserRegistration()" style="margin-top: 15px;">حفظ البيانات أونلاين</button>
+            <button class="buy-btn" onclick="closeModal('loginModal')" style="width: 100%; margin-top: 8px; background: #444; color:#fff;">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- نافذة الشراء الشاملة وطرق الدفع -->
+    <div class="modal" id="buyModal">
+        <div class="modal-content">
+            <h3>تأكيد طلب الشحن</h3>
+            <p style="margin-top: 8px; font-weight: bold; color: #ffd700;" id="buySelectedPackage"></p>
+            
+            <label>الاسم بالكامل:</label>
+            <input type="text" id="buyName">
+
+            <label>رقم الـ ID:</label>
+            <input type="text" id="buyPubgID">
+
+            <label>المحافظة:</label>
+            <input type="text" id="buyGov">
+
+            <label>رقم الهاتف للتواصل:</label>
+            <input type="text" id="buyPhone">
+
+            <label>اختر طريقة الدفع (مصر):</label>
+            <select id="buyPaymentMethod">
+                <option value="فودافون كاش">فودافون كاش (Vodafone Cash)</option>
+                <option value="إنستا باي">إنستا باي (InstaPay)</option>
+                <option value="اتصالات كاش">اتصالات كاش (Etisalat Cash)</option>
+                <option value="اورنج كاش">اورنج كاش (Orange Cash)</option>
+                <option value="وي كاش">وي كاش (WE Pay)</option>
+                <option value="فيزا / فوري">كارت فيزا / فوري / أمان</option>
+            </select>
+
+            <button class="buy-btn" onclick="confirmPurchaseSend()" style="margin-top: 15px;">تأكيد وإرسال الطلب للواتساب</button>
+            <button class="buy-btn" onclick="closeModal('buyModal')" style="width: 100%; margin-top: 8px; background: #444; color:#fff;">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم الكاملة وقاعدة البيانات ☠️ (الرفع المباشر من المعرض والتخزين في Firebase) -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <h3 style="color: #ff4d4d;">لوحة الإدارة وقاعدة البيانات (أونلاين 100%) ☠️</h3>
+            
+            <div id="adminPassBox">
+                <label>أدخل كلمة المرور السرية:</label>
+                <input type="password" id="adminPassInput">
+                <button class="buy-btn" onclick="verifyAdminPass()" style="margin-top: 10px;">دخول</button>
+            </div>
+
+            <div id="adminContent" style="display: none;">
+                <label>اسم المتجر:</label>
+                <input type="text" id="admSiteTitleInput">
+
+                <label>اختر صورة اللوجو من المعرض (Gallery):</label>
+                <input type="file" id="admLogoFileInput" accept="image/*" style="padding: 5px; background: rgba(255,255,255,0.05);" onchange="previewLogoFile(event)">
+                <div style="margin-top: 8px; text-align: center;">
+                    <img id="logoPreviewImg" src="" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover; display: none; border: 2px solid #ffd700;" alt="معاينة اللوجو">
+                </div>
+
+                <h4 style="margin-top: 12px; color: #ffd700;">قاعدة بيانات المشتركين المربوطة بـ Firebase:</h4>
+                <div style="max-height: 120px; overflow-y: auto;">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الهاتف</th>
+                                <th>ID ببجي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registeredUsersTable"><tr><td colspan="3">جاري التحميل...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h4 style="margin-top: 12px; color: #ffd700;">تعديل باقات الشدات ووكالة الخصم الحمرا (Badge):</h4>
+                <div id="adminPackagesEditor"></div>
+
+                <button class="buy-btn" onclick="addNewPackageField()" style="margin-top: 8px; background: #28a745; color: white;">+ إضافة باقة جديدة</button>
+                <button class="buy-btn" onclick="savePackageChanges()" style="margin-top: 12px;">💾 حفظ ونشر التعديلات أونلاين</button>
+            </div>
+
+            <button class="buy-btn" onclick="closeModal('adminModal')" style="width: 100%; margin-top: 10px; background: #444; color:#fff;">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات الاتصال بمشروعك على Firebase (mesbah2) أونلاين 100%
+        const firebaseConfig = {
+            databaseURL: "https://mesbah2-e85b9-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const adsList = [
+            "🔥 شحن آمن برقم الـ ID فقط بدون كلمة سر",
+            "⚡ وصول فوري وسريع للشدات لحسابك خلال ثوانٍ",
+            "💎 أقوى عروض الشدات الحصرية في مصر",
+            "👑 خصومات خاصة لجميع المشتركين المسجلين أونلاين",
+            "🛡️ حماية وتشفير آمن 100% لكافة عمليات الشراء",
+            "💬 دعم فني متواصل عبر الواتساب على مدار الساعة"
+        ];
+        const animClasses = ["anim-style-1", "anim-style-2", "anim-style-3", "anim-style-4", "anim-style-5"];
+        let currentAdIndex = 0;
+        
+        const defaultLogo = "https://cdn-icons-png.flaticon.com/512/808/808439.png";
+
+        let siteName = "ستور الفنان 👑";
+        let siteLogo = defaultLogo;
+        let newUploadedLogoBase64 = null;
+
+        const defaultPackages = [
+            { uc: "30 UC", price: "23.99 ج.م", badge: "-5.00%", promoTag: "🗨️ العرض المبتدئ" },
+            { uc: "60 UC", price: "47.99 ج.م", badge: "-5.00%", promoTag: "🗨️ الأكثر طلباً" },
+            { uc: "325 UC", price: "239.99 ج.م", badge: "-7.00%", promoTag: "🔥 باقة التوفير" },
+            { uc: "660 UC", price: "479.99 ج.م", badge: "-10.00%", promoTag: "💎 الباقة الذهبية" },
+            { uc: "985 UC", price: "719.99 ج.م", badge: "-12.00%", promoTag: "💎 باقة مميزة" },
+            { uc: "1800 UC", price: "1249.99 ج.م", badge: "-15.00%", promoTag: "⚡ عرض الاحتراف" },
+            { uc: "3850 UC", price: "2499.99 ج.م", badge: "-18.00%", promoTag: "👑 باقة الملوك" },
+            { uc: "8100 UC", price: "4999.99 ج.م", badge: "-20.00%", promoTag: "🔥 العرض الأقوى" },
+            { uc: "60000 UC (+21000 UC)", price: "47999.99 ج.م", badge: "عرض خاص 🔥", promoTag: "🎁 عرض الأساطير" }
+        ];
+
+        let packages = defaultPackages;
+        let registeredUsers = [];
+        let currentUser = JSON.parse(localStorage.getItem('artist_current_user')) || null;
+        let selectedPkgForBuy = null;
+
+        window.onload = function() {
+            startAdsCycle();
+            
+            const savedTheme = localStorage.getItem('artist_theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButtonUI(savedTheme);
+
+            // جلب البيانات الأساسية واللوجو والباقات لحظياً من Firebase أونلاين لأي جهاز
+            db.ref('store_data').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.siteName) {
+                        siteName = data.siteName;
+                    }
+                    if (data.siteLogo) {
+                        siteLogo = data.siteLogo;
+                    }
+                    applySiteTitleAndLogo(siteName, siteLogo);
+
+                    if (data.packages) {
+                        packages = data.packages;
+                        renderStore();
+                    }
+                } else {
+                    db.ref('store_data').set({ siteName: "ستور الفنان 👑", siteLogo: defaultLogo, packages: defaultPackages });
+                }
+            });
+
+            // جلب المشتركين وقاعدة بياناتهم لحظياً من Firebase أونلاين
+            db.ref('store_users').on('value', (snapshot) => {
+                const usersData = snapshot.val();
+                registeredUsers = [];
+                if (usersData) {
+                    Object.keys(usersData).forEach(key => {
+                        registeredUsers.push(usersData[key]);
+                    });
+                }
+                updateUserButtonUI();
+            });
+        };
+
+        function applySiteTitleAndLogo(name, logo) {
+            document.getElementById('siteHeaderTitle').innerHTML = `${name} 👑`;
+            document.getElementById('siteLogoImg').src = logo;
+        }
+
+        function startAdsCycle() {
+            const box = document.getElementById('adsSlideBox');
+            setInterval(() => {
+                currentAdIndex = (currentAdIndex + 1) % adsList.length;
+                const randomAnim = animClasses[Math.floor(Math.random() * animClasses.length)];
+                
+                box.className = `ad-slide-text ${randomAnim}`;
+                box.innerText = adsList[currentAdIndex];
+            }, 4000);
+        }
+
+        function renderStore() {
+            const grid = document.getElementById('storeGrid');
+            grid.innerHTML = '';
+            packages.forEach((pkg, index) => {
+                grid.innerHTML += `
+                    <div class="card">
+                        ${pkg.badge ? `<div class="promo-badge">${pkg.badge}</div>` : ''}
+                        <div>
+                            <div class="uc-amount">🪙 ${pkg.uc}</div>
+                            ${pkg.promoTag ? `<div class="custom-promo-tag">${pkg.promoTag}</div>` : ''}
+                        </div>
+                        <div class="price">${pkg.price}</div>
+                        <button class="buy-btn" onclick="initiateBuy(${index})">شحن الآن</button>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('artist_theme', newTheme);
+            updateThemeButtonUI(newTheme);
+        }
+
+        function updateThemeButtonUI(theme) {
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            if (theme === 'light') {
+                icon.className = "fa-solid fa-sun";
+                label.innerText = "نهاري";
+            } else {
+                icon.className = "fa-solid fa-moon";
+                label.innerText = "ليلي";
+            }
+        }
+
+        function updateUserButtonUI() {
+            const btn = document.getElementById('userAccountBtn');
+            if (currentUser && currentUser.name) {
+                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${currentUser.name.split(' ')[0]}`;
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-user"></i> دخول`;
+            }
+        }
+
+        function openProfileOrLogin() {
+            if (currentUser) {
+                document.getElementById('modalUserTitle').innerText = "تعديل بيانات الحساب أونلاين";
+                document.getElementById('regName').value = currentUser.name || '';
+                document.getElementById('regPhone').value = currentUser.phone || '';
+                document.getElementById('regGov').value = currentUser.gov || 'الشرقية';
+                document.getElementById('regPubgID').value = currentUser.pubgID || '';
+            } else {
+                document.getElementById('modalUserTitle').innerText = "تسجيل بيانات الحساب والـ ID";
+                document.getElementById('regName').value = '';
+                document.getElementById('regPhone').value = '';
+                document.getElementById('regPubgID').value = '';
+            }
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function saveUserRegistration() {
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const gov = document.getElementById('regGov').value;
+            const pubgID = document.getElementById('regPubgID').value.trim();
+
+            if (!name || !phone || !pubgID) {
+                alert('يرجى ملء كافة البيانات الأساسية (الاسم، الهاتف، وID ببجي)!');
+                return;
+            }
+
+            currentUser = { name, phone, gov, pubgID };
+            localStorage.setItem('artist_current_user', JSON.stringify(currentUser));
+            
+            const userKey = phone.replace(/[^0-9]/g, '');
+            db.ref('store_users/' + userKey).set(currentUser).then(() => {
+                updateUserButtonUI();
+                closeModal('loginModal');
+                alert('تم حفظ البيانات وربطها بـ Firebase أونلاين بنجاح تام!');
+            }).catch(err => {
+                alert('خطأ في الحفظ أونلاين: ' + err.message);
+            });
+        }
+
+        function initiateBuy(index) {
+            selectedPkgForBuy = packages[index];
+            document.getElementById('buySelectedPackage').innerText = `الباقة: ${selectedPkgForBuy.uc} - السعر: ${selectedPkgForBuy.price}`;
+            if (currentUser) {
+                document.getElementById('buyName').value = currentUser.name || '';
+                document.getElementById('buyPubgID').value = currentUser.pubgID || '';
+                document.getElementById('buyGov').value = currentUser.gov || '';
+                document.getElementById('buyPhone').value = currentUser.phone || '';
+            }
+            document.getElementById('buyModal').style.display = 'flex';
+        }
+
+        function confirmPurchaseSend() {
+            const name = document.getElementById('buyName').value.trim();
+            const id = document.getElementById('buyPubgID').value.trim();
+            const phone = document.getElementById('buyPhone').value.trim();
+            const method = document.getElementById('buyPaymentMethod').value;
+
+            if (!name || !id || !phone) {
+                alert('يرجى تعبئة بيانات الشراء!');
+                return;
+            }
+
+            const msg = `طلب شحن جديد من ستور الفنان:%0A👤 الاسم: ${name}%0A📱 الهاتف: ${phone}%0A🆔 الـ ID: ${id}%0A💎 الحزمة: ${selectedPkgForBuy.uc}%0A💰 السعر: ${selectedPkgForBuy.price}%0A💳 الدفع: ${method}`;
+            window.open(`https://wa.me/201040428382?text=${msg}`, '_blank');
+            closeModal('buyModal');
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+
+        function verifyAdminPass() {
+            if (document.getElementById('adminPassInput').value === "AZ##01040428382##az") {
+                document.getElementById('adminPassBox').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('admSiteTitleInput').value = siteName.replace(' 👑', '');
+                newUploadedLogoBase64 = null;
+                const preview = document.getElementById('logoPreviewImg');
+                preview.src = siteLogo;
+                preview.style.display = 'inline-block';
+                renderAdminUsersTable();
+                renderAdminPackagesEditor();
+            } else { alert('خطأ في كلمة المرور!'); }
+        }
+
+        // قراءة الصورة المرفوعة من المعرض وتحويلها لـ Base64 عشان تتخزن في Firebase
+        function previewLogoFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newUploadedLogoBase64 = e.target.result;
+                    const preview = document.getElementById('logoPreviewImg');
+                    preview.src = newUploadedLogoBase64;
+                    preview.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderAdminUsersTable() {
+            const tbody = document.getElementById('registeredUsersTable');
+            tbody.innerHTML = registeredUsers.length ? '' : '<tr><td colspan="3">لا يوجد مستخدمون مسجلون بعد</td></tr>';
+            registeredUsers.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.name}</td>
+                        <td>${u.phone}</td>
+                        <td>${u.pubgID}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAdminPackagesEditor() {
+            const container = document.getElementById('adminPackagesEditor');
+            container.innerHTML = '';
+            packages.forEach((pkg, idx) => {
+                container.innerHTML += `
+                    <div class="pkg-edit-row">
+                        <label>الـ UC:</label>
+                        <input type="text" id="admUC_${idx}" value="${pkg.uc}">
+                        <label>السعر:</label>
+                        <input type="text" id="admPrice_${idx}" value="${pkg.price}">
+                        <label>وكالة الخصم الحمرا (Badge):</label>
+                        <input type="text" id="admBadge_${idx}" value="${pkg.badge || ''}">
+                        <label>العرض الترويجي:</label>
+                        <input type="text" id="admTag_${idx}" value="${pkg.promoTag || ''}">
+                        <button onclick="removePackage(${idx})" style="margin-top:8px; background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">حذف الباقة</button>
+                    </div>
+                `;
+            });
+        }
+
+        function addNewPackageField() {
+            packages.push({ uc: "100 UC", price: "80 ج.م", badge: "عرض جديد 🔥", promoTag: "🎁 عرض مميز" });
+            renderAdminPackagesEditor();
+        }
+
+        function removePackage(idx) {
+            packages.splice(idx, 1);
+            renderAdminPackagesEditor();
+        }
+
+        function savePackageChanges() {
+            const newNameInput = document.getElementById('admSiteTitleInput').value.trim();
+            if (newNameInput) {
+                siteName = newNameInput + " 👑";
+            }
+
+            // استخدام الصورة المرفوعة الجديدة لو اختار صورة، أو تفضيل الحفاظ على القديمة
+            if (newUploadedLogoBase64) {
+                siteLogo = newUploadedLogoBase64;
+            }
+
+            const updated = [];
+            packages.forEach((p, i) => {
+                const ucVal = document.getElementById(`admUC_${i}`);
+                const priceVal = document.getElementById(`admPrice_${i}`);
+                const badgeVal = document.getElementById(`admBadge_${i}`);
+                const tagVal = document.getElementById(`admTag_${i}`);
+                if (ucVal && priceVal) {
+                    updated.push({
+                        uc: ucVal.value,
+                        price: priceVal.value,
+                        badge: badgeVal ? badgeVal.value : '',
+                        promoTag: tagVal ? tagVal.value : ''
+                    });
+                }
+            });
+            packages = updated;
+
+            // الحفظ ونشر الصورة والاسم والباقات أونلاين على Firebase لتظهر لأي شخص يفتح من تليفون تاني
+            db.ref('store_data').set({
+                siteName: siteName,
+                siteLogo: siteLogo,
+                packages: packages
+            }).then(() => {
+                alert('تم حفظ اللوجو المرفوع من المعرض وكل التعديلات بـ Firebase بنجاح تام، وهتظهر فوراً لأي شخص يفتح الموقع من أي تليفون!');
+                closeModal('adminModal');
+            }).catch((err) => {
+                alert('حدث خطأ أثناء الحفظ بـ Firebase: ' + err.message);
+            });
+        }
+    </script>
+</body>
+</html>
