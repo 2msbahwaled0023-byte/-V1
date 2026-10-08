@@ -391,7 +391,7 @@
         <div class="header-left-group">
             <img src="https://cdn-icons-png.flaticon.com/512/808/808439.png" alt="Logo" class="header-avatar" id="siteLogoImg">
             <div class="header-info">
-                <h1 id="siteHeaderTitle">ستور الفنان 👑</h1>
+                <h1 id="siteHeaderTitle">ستور الفنان 🪙</h1>
                 <p>لشحن شدات ببجي موبايل<br>مطور الموقع<br>مصباح الفنان</p>
             </div>
         </div>
@@ -409,12 +409,12 @@
 
         <!-- 📺 شاشة الإعلانات الحركية -->
         <div class="ads-container">
-            <div id="adsSlideBox" class="ad-slide-text anim-style-1">⚡ جاري تحميل أقوى عروض الشدات أونلاين...</div>
+            <div id="adsSlideBox" class="ad-slide-text anim-style-1">⚡ أهلاً بك في ستور الفنان لشحن الشدات أونلاين...</div>
         </div>
 
         <h2 class="section-title">💎 متجر باقات شدات ببجي موبايل</h2>
         
-        <!-- 🛍️ باقات الشدات -->
+        <!-- 🛍️ باقات المتجر -->
         <div class="store-grid" id="storeGrid"></div>
 
         <!-- 📞 أرقام الخدمة -->
@@ -443,7 +443,7 @@
 
     </div>
 
-    <!-- نافذة تسجيل بيانات العميل (بدون صور بروفايل نهائياً) -->
+    <!-- نافذة تسجيل بيانات العميل (إجبارية أولاً) -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <h3 id="modalUserTitle">تسجيل بيانات الحساب والـ ID</h3>
@@ -467,30 +467,25 @@
             <label>رقم الـ ID في ببجي:</label>
             <input type="text" id="regPubgID" placeholder="مثال: 1542751371">
             
-            <button class="buy-btn" onclick="saveUserRegistration()" style="margin-top: 15px;">حفظ البيانات أونلاين</button>
+            <button class="buy-btn" onclick="saveUserRegistration()" style="margin-top: 15px;">حفظ البيانات ومتابعة الطلب</button>
             <button class="buy-btn" onclick="closeModal('loginModal')" style="width: 100%; margin-top: 8px; background: #444; color:#fff;">إلغاء</button>
         </div>
     </div>
 
-    <!-- نافذة الشراء الشاملة وطرق الدفع -->
+    <!-- نافذة تأكيد الطلب وطرق الدفع -->
     <div class="modal" id="buyModal">
         <div class="modal-content">
             <h3>تأكيد طلب الشحن</h3>
             <p style="margin-top: 8px; font-weight: bold; color: #ffd700;" id="buySelectedPackage"></p>
             
-            <label>الاسم بالكامل:</label>
-            <input type="text" id="buyName">
+            <div style="background: rgba(255,215,0,0.05); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.85rem;">
+                <p><b>👤 الاسم:</b> <span id="displayBuyName"></span></p>
+                <p><b>🆔 الـ ID:</b> <span id="displayBuyPubgID"></span></p>
+                <p><b>📍 المحافظة:</b> <span id="displayBuyGov"></span></p>
+                <p><b>📱 الهاتف:</b> <span id="displayBuyPhone"></span></p>
+            </div>
 
-            <label>رقم الـ ID:</label>
-            <input type="text" id="buyPubgID">
-
-            <label>المحافظة:</label>
-            <input type="text" id="buyGov">
-
-            <label>رقم الهاتف للتواصل:</label>
-            <input type="text" id="buyPhone">
-
-            <label>اختر طريقة الدفع (مصر):</label>
+            <label style="margin-top: 12px;">اختر طريقة الدفع (مصر):</label>
             <select id="buyPaymentMethod">
                 <option value="فودافون كاش">فودافون كاش (Vodafone Cash)</option>
                 <option value="إنستا باي">إنستا باي (InstaPay)</option>
@@ -500,12 +495,12 @@
                 <option value="فيزا / فوري">كارت فيزا / فوري / أمان</option>
             </select>
 
-            <button class="buy-btn" onclick="confirmPurchaseSend()" style="margin-top: 15px;">تأكيد وإرسال الطلب للواتساب</button>
+            <button class="buy-btn" onclick="confirmPurchaseSend()" style="margin-top: 15px;">إرسال الطلب للواتساب</button>
             <button class="buy-btn" onclick="closeModal('buyModal')" style="width: 100%; margin-top: 8px; background: #444; color:#fff;">إلغاء</button>
         </div>
     </div>
 
-    <!-- لوحة التحكم الكاملة وقاعدة البيانات ☠️ (الرفع المباشر من المعرض والتخزين في Firebase) -->
+    <!-- لوحة التحكم الكاملة وقاعدة البيانات ☠️ -->
     <div class="modal" id="adminModal">
         <div class="modal-content">
             <h3 style="color: #ff4d4d;">لوحة الإدارة وقاعدة البيانات (أونلاين 100%) ☠️</h3>
@@ -572,20 +567,25 @@
         
         const defaultLogo = "https://cdn-icons-png.flaticon.com/512/808/808439.png";
 
-        let siteName = "ستور الفنان 👑";
+        let siteName = "ستور الفنان 🪙";
         let siteLogo = defaultLogo;
         let newUploadedLogoBase64 = null;
 
+        // الباقات الافتراضية بالأسعار الجديدة (+25 جنيه)
         const defaultPackages = [
-            { uc: "30 UC", price: "23.99 ج.م", badge: "-5.00%", promoTag: "🗨️ العرض المبتدئ" },
-            { uc: "60 UC", price: "47.99 ج.م", badge: "-5.00%", promoTag: "🗨️ الأكثر طلباً" },
-            { uc: "325 UC", price: "239.99 ج.م", badge: "-7.00%", promoTag: "🔥 باقة التوفير" },
-            { uc: "660 UC", price: "479.99 ج.م", badge: "-10.00%", promoTag: "💎 الباقة الذهبية" },
-            { uc: "985 UC", price: "719.99 ج.م", badge: "-12.00%", promoTag: "💎 باقة مميزة" },
-            { uc: "1800 UC", price: "1249.99 ج.م", badge: "-15.00%", promoTag: "⚡ عرض الاحتراف" },
-            { uc: "3850 UC", price: "2499.99 ج.م", badge: "-18.00%", promoTag: "👑 باقة الملوك" },
-            { uc: "8100 UC", price: "4999.99 ج.م", badge: "-20.00%", promoTag: "🔥 العرض الأقوى" },
-            { uc: "60000 UC (+21000 UC)", price: "47999.99 ج.م", badge: "عرض خاص 🔥", promoTag: "🎁 عرض الأساطير" }
+            { uc: "30 UC", price: "48.99 ج.م", badge: "-5.00%", promoTag: "🗨️ العرض المبتدئ" },
+            { uc: "60 UC", price: "72.99 ج.م", badge: "-5.00%", promoTag: "🗨️ الأكثر طلباً" },
+            { uc: "300 UC", price: "264.99 ج.م", badge: "-8.00%", promoTag: "🔥 باقة التوفير" },
+            { uc: "600 UC", price: "504.99 ج.م", badge: "-10.00%", promoTag: "💎 الباقة الذهبية" },
+            { uc: "1500 UC", price: "1224.99 ج.م", badge: "-20.00%", promoTag: "💎 باقة مميزة" },
+            { uc: "3000 UC", price: "2424.99 ج.م", badge: "-20.00%", promoTag: "⚡ عرض الاحتراف" },
+            { uc: "6000 UC", price: "4824.99 ج.م", badge: "-35.00%", promoTag: "👑 باقة الملوك" },
+            { uc: "12000 UC", price: "9424.99 ج.م", badge: "-35.00%", promoTag: "🔥 العرض الأقوى" },
+            { uc: "18000 UC", price: "14424.99 ج.م", badge: "-35.00%", promoTag: "🎁 باقة الأساطير" },
+            { uc: "24000 UC", price: "19224.99 ج.م", badge: "-35.00%", promoTag: "🚀 عرض العملاق" },
+            { uc: "30000 UC", price: "24024.99 ج.م", badge: "-35.00%", promoTag: "⚡ العرض الخارق" },
+            { uc: "36000 UC", price: "28824.99 ج.م", badge: "-35.00%", promoTag: "👑 عرض النجوم" },
+            { uc: "60000 UC", price: "48024.99 ج.م", badge: "-35.00%", promoTag: "💎 العرض الأسطوري" }
         ];
 
         let packages = defaultPackages;
@@ -593,23 +593,23 @@
         let currentUser = JSON.parse(localStorage.getItem('artist_current_user')) || null;
         let selectedPkgForBuy = null;
 
+        // عرض الباقات فوراً بدون أي انتظار لتكون السرعة فائقة
+        renderStore();
+
         window.onload = function() {
             startAdsCycle();
             
             const savedTheme = localStorage.getItem('artist_theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             updateThemeButtonUI(savedTheme);
+            updateUserButtonUI();
 
-            // جلب البيانات الأساسية واللوجو والباقات لحظياً من Firebase أونلاين لأي جهاز
+            // جلب البيانات من Firebase في الخلفية وتحديثها فوراً للزوار
             db.ref('store_data').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    if (data.siteName) {
-                        siteName = data.siteName;
-                    }
-                    if (data.siteLogo) {
-                        siteLogo = data.siteLogo;
-                    }
+                    if (data.siteName) { siteName = data.siteName; }
+                    if (data.siteLogo) { siteLogo = data.siteLogo; }
                     applySiteTitleAndLogo(siteName, siteLogo);
 
                     if (data.packages) {
@@ -617,11 +617,10 @@
                         renderStore();
                     }
                 } else {
-                    db.ref('store_data').set({ siteName: "ستور الفنان 👑", siteLogo: defaultLogo, packages: defaultPackages });
+                    db.ref('store_data').set({ siteName: "ستور الفنان 🪙", siteLogo: defaultLogo, packages: defaultPackages });
                 }
             });
 
-            // جلب المشتركين وقاعدة بياناتهم لحظياً من Firebase أونلاين
             db.ref('store_users').on('value', (snapshot) => {
                 const usersData = snapshot.val();
                 registeredUsers = [];
@@ -630,12 +629,11 @@
                         registeredUsers.push(usersData[key]);
                     });
                 }
-                updateUserButtonUI();
             });
         };
 
         function applySiteTitleAndLogo(name, logo) {
-            document.getElementById('siteHeaderTitle').innerHTML = `${name} 👑`;
+            document.getElementById('siteHeaderTitle').innerHTML = `${name}`;
             document.getElementById('siteLogoImg').src = logo;
         }
 
@@ -713,6 +711,7 @@
             document.getElementById('loginModal').style.display = 'flex';
         }
 
+        // حفظ البيانات محلياً وبرفعها لسيرفر Firebase فوراً لتظهر في لوحة التحكم (☠️)
         function saveUserRegistration() {
             const name = document.getElementById('regName').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
@@ -726,41 +725,50 @@
 
             currentUser = { name, phone, gov, pubgID };
             localStorage.setItem('artist_current_user', JSON.stringify(currentUser));
-            
+            updateUserButtonUI();
+            closeModal('loginModal');
+            alert('تم تسجيل البيانات بنجاح، يمكنك الآن متابعة الطلب!');
+
+            // رفع البيانات مباشرة وحفظها على سيرفر Firebase لضمان ظهورها في خانة الإدارة (☠️)
             const userKey = phone.replace(/[^0-9]/g, '');
-            db.ref('store_users/' + userKey).set(currentUser).then(() => {
-                updateUserButtonUI();
-                closeModal('loginModal');
-                alert('تم حفظ البيانات وربطها بـ Firebase أونلاين بنجاح تام!');
-            }).catch(err => {
-                alert('خطأ في الحفظ أونلاين: ' + err.message);
+            db.ref('store_users/' + userKey).set(currentUser).catch(err => {
+                console.log("Firebase sync error: " + err.message);
             });
         }
 
+        // التحقق الإجباري من تسجيل الدخول قبل طلب الشحن
         function initiateBuy(index) {
-            selectedPkgForBuy = packages[index];
-            document.getElementById('buySelectedPackage').innerText = `الباقة: ${selectedPkgForBuy.uc} - السعر: ${selectedPkgForBuy.price}`;
-            if (currentUser) {
-                document.getElementById('buyName').value = currentUser.name || '';
-                document.getElementById('buyPubgID').value = currentUser.pubgID || '';
-                document.getElementById('buyGov').value = currentUser.gov || '';
-                document.getElementById('buyPhone').value = currentUser.phone || '';
-            }
-            document.getElementById('buyModal').style.display = 'flex';
-        }
-
-        function confirmPurchaseSend() {
-            const name = document.getElementById('buyName').value.trim();
-            const id = document.getElementById('buyPubgID').value.trim();
-            const phone = document.getElementById('buyPhone').value.trim();
-            const method = document.getElementById('buyPaymentMethod').value;
-
-            if (!name || !id || !phone) {
-                alert('يرجى تعبئة بيانات الشراء!');
+            if (!currentUser || !currentUser.name || !currentUser.pubgID) {
+                alert('عذراً يا فنان، يجب تسجيل الدخول أولاً للاستمتاع بعروض الشحن وإدخال بياناتك قبل متابعة الطلب!');
+                openProfileOrLogin();
                 return;
             }
 
-            const msg = `طلب شحن جديد من ستور الفنان:%0A👤 الاسم: ${name}%0A📱 الهاتف: ${phone}%0A🆔 الـ ID: ${id}%0A💎 الحزمة: ${selectedPkgForBuy.uc}%0A💰 السعر: ${selectedPkgForBuy.price}%0A💳 الدفع: ${method}`;
+            selectedPkgForBuy = packages[index];
+            document.getElementById('buySelectedPackage').innerText = `الباقة المختارة: ${selectedPkgForBuy.uc} - السعر: ${selectedPkgForBuy.price}`;
+            
+            // عرض بيانات العميل المسجل للتأكيد
+            document.getElementById('displayBuyName').innerText = currentUser.name;
+            document.getElementById('displayBuyPubgID').innerText = currentUser.pubgID;
+            document.getElementById('displayBuyGov').innerText = currentUser.gov || 'الشرقية';
+            document.getElementById('displayBuyPhone').innerText = currentUser.phone;
+
+            document.getElementById('buyModal').style.display = 'flex';
+        }
+
+        // إرسال الطلب للواتساب بالبيانات المسجلة كاملة ومضبوطة
+        function confirmPurchaseSend() {
+            const method = document.getElementById('buyPaymentMethod').value;
+
+            const msg = `🚀 طلب شحن جديد من ستور الفنان:%0A` +
+                        `👤 اسم العميل: ${currentUser.name}%0A` +
+                        `🆔 رقم الـ ID: ${currentUser.pubgID}%0A` +
+                        `📍 المحافظة: ${currentUser.gov || 'الشرقية'}%0A` +
+                        `📱 رقم الهاتف: ${currentUser.phone}%0A` +
+                        `💎 الحزمة المطلوبة: ${selectedPkgForBuy.uc}%0A` +
+                        `💰 السعر الإجمالي: ${selectedPkgForBuy.price}%0A` +
+                        `💳 طريقة الدفع: ${method}`;
+
             window.open(`https://wa.me/201040428382?text=${msg}`, '_blank');
             closeModal('buyModal');
         }
@@ -772,7 +780,7 @@
             if (document.getElementById('adminPassInput').value === "AZ##01040428382##az") {
                 document.getElementById('adminPassBox').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                document.getElementById('admSiteTitleInput').value = siteName.replace(' 👑', '');
+                document.getElementById('admSiteTitleInput').value = siteName.replace(' 🪙', '');
                 newUploadedLogoBase64 = null;
                 const preview = document.getElementById('logoPreviewImg');
                 preview.src = siteLogo;
@@ -782,7 +790,6 @@
             } else { alert('خطأ في كلمة المرور!'); }
         }
 
-        // قراءة الصورة المرفوعة من المعرض وتحويلها لـ Base64 عشان تتخزن في Firebase
         function previewLogoFile(event) {
             const file = event.target.files[0];
             if (file) {
@@ -832,7 +839,7 @@
         }
 
         function addNewPackageField() {
-            packages.push({ uc: "100 UC", price: "80 ج.م", badge: "عرض جديد 🔥", promoTag: "🎁 عرض مميز" });
+            packages.push({ uc: "100 UC", price: "105 ج.م", badge: "عرض جديد 🔥", promoTag: "🎁 عرض مميز" });
             renderAdminPackagesEditor();
         }
 
@@ -843,14 +850,9 @@
 
         function savePackageChanges() {
             const newNameInput = document.getElementById('admSiteTitleInput').value.trim();
-            if (newNameInput) {
-                siteName = newNameInput + " 👑";
-            }
+            if (newNameInput) { siteName = newNameInput + " 🪙"; }
 
-            // استخدام الصورة المرفوعة الجديدة لو اختار صورة، أو تفضيل الحفاظ على القديمة
-            if (newUploadedLogoBase64) {
-                siteLogo = newUploadedLogoBase64;
-            }
+            if (newUploadedLogoBase64) { siteLogo = newUploadedLogoBase64; }
 
             const updated = [];
             packages.forEach((p, i) => {
@@ -869,16 +871,15 @@
             });
             packages = updated;
 
-            // الحفظ ونشر الصورة والاسم والباقات أونلاين على Firebase لتظهر لأي شخص يفتح من تليفون تاني
             db.ref('store_data').set({
                 siteName: siteName,
                 siteLogo: siteLogo,
                 packages: packages
             }).then(() => {
-                alert('تم حفظ اللوجو المرفوع من المعرض وكل التعديلات بـ Firebase بنجاح تام، وهتظهر فوراً لأي شخص يفتح الموقع من أي تليفون!');
+                alert('تم حفظ البيانات والتعديلات بنجاح تام أونلاين عبر Firebase!');
                 closeModal('adminModal');
             }).catch((err) => {
-                alert('حدث خطأ أثناء الحفظ بـ Firebase: ' + err.message);
+                alert('حدث خطأ أثناء الحفظ: ' + err.message);
             });
         }
     </script>
